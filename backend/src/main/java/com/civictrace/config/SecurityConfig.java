@@ -61,7 +61,8 @@ public class SecurityConfig {
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/health", "/actuator/health", "/api/auth/**", "/ws/**").permitAll()
+                        .requestMatchers("/api/health", "/actuator/health", "/api/auth/**").permitAll()
+                        .requestMatchers("/ws", "/ws/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/issues", "/api/issues/**", "/api/analytics/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/issues").hasRole("RESIDENT")
                         .requestMatchers(HttpMethod.POST, "/api/issues/*/support", "/api/issues/suggestions").hasRole("RESIDENT")
@@ -69,7 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/issues/*/status").hasRole("STAFF")
                         .requestMatchers("/api/me", "/api/my/issues", "/api/staff/**").authenticated()
                         .anyRequest().authenticated())
-                .logout(logout -> logout.logoutUrl("/api/auth/logout").invalidateHttpSession(true).clearAuthentication(true));
+                .logout(logout -> logout.disable());
 
         return http.build();
     }
@@ -80,14 +81,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder) {
+    AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
-        return provider;
-    }
-
-    @Bean
-    AuthenticationManager authenticationManager(DaoAuthenticationProvider provider) {
         return new ProviderManager(provider);
     }
 

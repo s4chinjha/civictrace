@@ -112,7 +112,7 @@ Backend tests cover health/migrations, authentication, role restrictions, duplic
 - `POST /api/issues/{id}/assignments`
 - `PATCH /api/issues/{id}/status`, `POST /api/issues/{id}/updates`
 - `GET /api/analytics/summary`, `/trends`, `/hotspots`
-- WebSocket/STOMP endpoint: `/ws`; public event topic: `/topic/issues`
+- WebSocket/STOMP endpoint: `/ws` for authenticated sessions; issue event topic: `/topic/issues` (payloads contain no resident names)
 
 ## Deployment preparation
 

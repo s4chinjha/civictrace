@@ -85,4 +85,27 @@ class AuthenticationWorkflowTest {
                 .andExpect(jsonPath("$.fieldErrors.email").exists())
                 .andExpect(jsonPath("$.fieldErrors.password").exists());
     }
+
+    @Test
+    void invalidLoginReturnsUnauthorizedAndLogoutClearsTheSession() throws Exception {
+        String email = "logout-" + UUID.randomUUID() + "@example.test";
+        String password = "secure-password";
+        mockMvc.perform(post("/api/auth/register").with(csrf()).contentType(APPLICATION_JSON)
+                        .content("{" + "\"name\":\"Logout Resident\",\"email\":\"" + email + "\",\"password\":\"" + password + "\"}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/auth/login").with(csrf()).contentType(APPLICATION_JSON)
+                        .content("{" + "\"email\":\"" + email + "\",\"password\":\"wrong-password\"}"))
+                .andExpect(status().isUnauthorized());
+
+        MvcResult login = mockMvc.perform(post("/api/auth/login").with(csrf()).contentType(APPLICATION_JSON)
+                        .content("{" + "\"email\":\"" + email + "\",\"password\":\"" + password + "\"}"))
+                .andExpect(status().isOk()).andReturn();
+        MockHttpSession session = (MockHttpSession) login.getRequest().getSession(false);
+
+        mockMvc.perform(post("/api/auth/logout").session(session).with(csrf()))
+                .andExpect(status().isNoContent());
+        mockMvc.perform(get("/api/me").session(session))
+                .andExpect(status().isUnauthorized());
+    }
 }

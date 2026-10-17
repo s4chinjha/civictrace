@@ -27,9 +27,9 @@ export function LandingPage() {
         <div className="hero-art" aria-hidden="true">
           <div className="hero-grid" />
           <div className="hero-pin hero-pin-main"><MapPinned size={22} /><span>Streetlight fixed</span></div>
-          <div className="hero-pin hero-pin-small"><Megaphone size={17} /><span>12 neighbours supporting</span></div>
+          <div className="hero-pin hero-pin-small"><Megaphone size={17} /><span>Community support</span></div>
           <div className="hero-orbit orbit-one" /><div className="hero-orbit orbit-two" />
-          <div className="hero-art-label"><span>LIVE CIVIC PULSE</span><strong>03</strong><small>active areas</small></div>
+          <div className="hero-art-label"><span>LIVE CIVIC PULSE</span><strong>LIVE</strong><small>public issue map</small></div>
         </div>
       </section>
 

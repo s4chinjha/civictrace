@@ -183,7 +183,7 @@ public class IssueService {
         boolean supported = currentUser != null && supportRepository.existsByIssueIdAndUserId(issue.getId(), currentUser.getId());
         return new IssueResponses.Summary(
                 issue.getId(), issue.getTitle(), issue.getDescription(), issue.getCategory(), issue.getStatus(),
-                issue.getLatitude(), issue.getLongitude(), issue.getLocationLabel(), issue.getReporter().getName(),
+                issue.getLatitude(), issue.getLongitude(), issue.getLocationLabel(), publicName(issue.getReporter()),
                 issue.getCreatedAt(), issue.getUpdatedAt(), issue.getResolvedAt(),
                 supportRepository.countByIssueId(issue.getId()), supported,
                 activeAssignment == null ? null : activeAssignment.getStaff().getId(),
@@ -194,7 +194,7 @@ public class IssueService {
     private IssueResponses.Update toUpdate(IssueUpdate update) {
         User actor = update.getActor();
         return new IssueResponses.Update(
-                update.getId(), actor.getId(), actor.getName(), actor.getRole(), update.getOldStatus(),
+                update.getId(), actor.getId(), publicName(actor), actor.getRole(), update.getOldStatus(),
                 update.getNewStatus(), update.getComment(), update.getCreatedAt()
         );
     }
@@ -202,6 +202,10 @@ public class IssueService {
     private Issue findIssue(UUID issueId) {
         return issueRepository.findById(issueId)
                 .orElseThrow(() -> new NotFoundException("Issue not found."));
+    }
+
+    private String publicName(User user) {
+        return user.getRole() == Role.RESIDENT ? "Community resident" : user.getName();
     }
 
     private String normalizeQuery(String value) {

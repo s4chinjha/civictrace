@@ -1,6 +1,7 @@
 import type { ApiErrorShape } from '../types'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'http://localhost:8080'
+let csrfToken: string | undefined
 
 export class ApiError extends Error {
   status: number
@@ -19,8 +20,15 @@ function readCookie(name: string): string | undefined {
 }
 
 async function ensureCsrfToken(): Promise<string | undefined> {
-  await fetch(`${API_BASE_URL}/api/auth/csrf`, { credentials: 'include' })
-  return readCookie('XSRF-TOKEN')
+  const response = await fetch(`${API_BASE_URL}/api/auth/csrf`, { credentials: 'include' })
+  let responseToken: string | undefined
+  try {
+    responseToken = (await response.json() as { token?: string }).token
+  } catch {
+    responseToken = undefined
+  }
+  csrfToken = responseToken ?? (readCookie('XSRF-TOKEN') ? decodeURIComponent(readCookie('XSRF-TOKEN')!) : undefined)
+  return csrfToken
 }
 
 export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -32,7 +40,7 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
   }
   if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
     const csrf = await ensureCsrfToken()
-    if (csrf) headers.set('X-XSRF-TOKEN', decodeURIComponent(csrf))
+    if (csrf) headers.set('X-XSRF-TOKEN', csrf)
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, { ...init, method, headers, credentials: 'include' })
