@@ -1,0 +1,22 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Java / Maven
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+
+# IDE and OS files
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# OpenCode / local planning scratch
+.superpowers/
